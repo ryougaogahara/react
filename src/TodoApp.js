@@ -3,7 +3,9 @@ import React, { useState, useEffect } from "react";
 const TodoApp = () => {
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState("");
-  const [sortCompleted, setSortCompleted] = useState(false); // 並べ替え状態を管理
+  const [dueDate, setDueDate] = useState("");  // 日付を管理
+  const [sortCompleted, setSortCompleted] = useState(false);
+  const [sortByDate, setSortByDate] = useState(false);  // 日付で並べ替える状態を管理
 
   useEffect(() => {
     const storedTodos = JSON.parse(localStorage.getItem("todos"));
@@ -17,16 +19,18 @@ const TodoApp = () => {
       id: Date.now(),
       text: newTodo,
       completed: false,
+      dueDate: dueDate ? new Date(dueDate).toISOString() : "",  // 日付を追加
     };
     const updatedTodos = [...todos, newTask];
     setTodos(updatedTodos);
     localStorage.setItem("todos", JSON.stringify(updatedTodos));
     setNewTodo("");
+    setDueDate("");  // 日付をクリア
   };
 
   const toggleCompleted = (id) => {
     const updatedTodos = [...todos];
-    const todo = updatedTodos.find(todo => todo.id === id);  // IDでタスクを見つける
+    const todo = updatedTodos.find(todo => todo.id === id);
     if (todo) {
       todo.completed = !todo.completed;
     }
@@ -40,14 +44,27 @@ const TodoApp = () => {
     localStorage.setItem("todos", JSON.stringify(updatedTodos));
   };
 
-  // 並べ替え機能
   const toggleSortOrder = () => {
     setSortCompleted(!sortCompleted);
   };
 
-  const sortedTodos = sortCompleted
-    ? [...todos].sort((a, b) => a.completed - b.completed) // 完了しているものを先に並べる
+  const toggleSortByDate = () => {
+    setSortByDate(!sortByDate);  // 日付で並べ替えの状態を切り替え
+  };
+
+  // 並べ替え
+  const sortedTodos = sortByDate
+    ? [...todos].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)) // 日付で並べ替え
+    : sortCompleted
+    ? [...todos].sort((a, b) => a.completed - b.completed)
     : todos;
+
+  // 日付のフォーマット関数（YYYY-MM-DD）
+  const formatDate = (date) => {
+    if (!date) return "";
+    const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+    return new Date(date).toLocaleDateString("ja-JP", options);
+  };
 
   return (
     <div>
@@ -58,10 +75,18 @@ const TodoApp = () => {
         onChange={(e) => setNewTodo(e.target.value)}
         placeholder="新しいTODO"
       />
+      <input
+        type="date"
+        value={dueDate}
+        onChange={(e) => setDueDate(e.target.value)} // 日付の入力を受け取る
+      />
       <button onClick={addTodo}>追加</button>
 
       <button onClick={toggleSortOrder}>
         {sortCompleted ? "未完了優先" : "完了優先"}
+      </button>
+      <button onClick={toggleSortByDate}>
+        {sortByDate ? "日付なし優先" : "日付順"}
       </button>
 
       <ul>
@@ -70,9 +95,12 @@ const TodoApp = () => {
             <input
               type="checkbox"
               checked={todo.completed}
-              onChange={() => toggleCompleted(todo.id)}  // IDを渡す
+              onChange={() => toggleCompleted(todo.id)}
             />
             {todo.text}
+            {todo.dueDate && (
+              <span> (期限: {formatDate(todo.dueDate)})</span>
+            )} {/* 日付表示 */}
             <button onClick={() => deleteTodo(todo.id)}>削除</button>
           </li>
         ))}
