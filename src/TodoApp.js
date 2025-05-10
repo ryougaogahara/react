@@ -16,6 +16,7 @@ const TodoApp = () => {
   // TODOを追加
   const addTodo = () => {
     const newTask = {
+      id: Date.now(), // ユニークなIDを追加
       text: newTodo,
       completed: false,
     };
@@ -33,6 +34,13 @@ const TodoApp = () => {
     localStorage.setItem("todos", JSON.stringify(updatedTodos)); // ローカルストレージに保存
   };
 
+  // TODOを削除
+  const deleteTodo = (id) => {
+    const updatedTodos = todos.filter(todo => todo.id !== id); // IDでフィルタリングして削除
+    setTodos(updatedTodos);
+    localStorage.setItem("todos", JSON.stringify(updatedTodos)); // ローカルストレージに保存
+  };
+
   return (
     <div>
       <h1>TODOアプリ</h1>
@@ -44,14 +52,15 @@ const TodoApp = () => {
       />
       <button onClick={addTodo}>追加</button>
       <ul>
-        {todos.map((todo, index) => (
-          <li key={index}>
+        {todos.map((todo) => (
+          <li key={todo.id}>
             <input
               type="checkbox"
               checked={todo.completed}
-              onChange={() => toggleCompleted(index)}
+              onChange={() => toggleCompleted(todos.indexOf(todo))}
             />
             {todo.text}
+            <button onClick={() => deleteTodo(todo.id)}>削除</button>
           </li>
         ))}
       </ul>
