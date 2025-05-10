@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 
 const TodoApp = () => {
-  // 状態管理
   const [todos, setTodos] = useState([]);
   const [newTodo, setNewTodo] = useState("");
+  const [sortCompleted, setSortCompleted] = useState(false); // 並べ替え状態を管理
 
-  // ローカルストレージからTODOを読み込む
   useEffect(() => {
     const storedTodos = JSON.parse(localStorage.getItem("todos"));
     if (storedTodos) {
@@ -13,33 +12,42 @@ const TodoApp = () => {
     }
   }, []);
 
-  // TODOを追加
   const addTodo = () => {
     const newTask = {
-      id: Date.now(), // ユニークなIDを追加
+      id: Date.now(),
       text: newTodo,
       completed: false,
     };
     const updatedTodos = [...todos, newTask];
     setTodos(updatedTodos);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos)); // ローカルストレージに保存
+    localStorage.setItem("todos", JSON.stringify(updatedTodos));
     setNewTodo("");
   };
 
-  // チェックボックスの状態を変更
-  const toggleCompleted = (index) => {
+  const toggleCompleted = (id) => {
     const updatedTodos = [...todos];
-    updatedTodos[index].completed = !updatedTodos[index].completed;
+    const todo = updatedTodos.find(todo => todo.id === id);  // IDでタスクを見つける
+    if (todo) {
+      todo.completed = !todo.completed;
+    }
     setTodos(updatedTodos);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos)); // ローカルストレージに保存
+    localStorage.setItem("todos", JSON.stringify(updatedTodos));
   };
 
-  // TODOを削除
   const deleteTodo = (id) => {
-    const updatedTodos = todos.filter(todo => todo.id !== id); // IDでフィルタリングして削除
+    const updatedTodos = todos.filter(todo => todo.id !== id);
     setTodos(updatedTodos);
-    localStorage.setItem("todos", JSON.stringify(updatedTodos)); // ローカルストレージに保存
+    localStorage.setItem("todos", JSON.stringify(updatedTodos));
   };
+
+  // 並べ替え機能
+  const toggleSortOrder = () => {
+    setSortCompleted(!sortCompleted);
+  };
+
+  const sortedTodos = sortCompleted
+    ? [...todos].sort((a, b) => a.completed - b.completed) // 完了しているものを先に並べる
+    : todos;
 
   return (
     <div>
@@ -51,13 +59,18 @@ const TodoApp = () => {
         placeholder="新しいTODO"
       />
       <button onClick={addTodo}>追加</button>
+
+      <button onClick={toggleSortOrder}>
+        {sortCompleted ? "未完了優先" : "完了優先"}
+      </button>
+
       <ul>
-        {todos.map((todo) => (
+        {sortedTodos.map((todo) => (
           <li key={todo.id}>
             <input
               type="checkbox"
               checked={todo.completed}
-              onChange={() => toggleCompleted(todos.indexOf(todo))}
+              onChange={() => toggleCompleted(todo.id)}  // IDを渡す
             />
             {todo.text}
             <button onClick={() => deleteTodo(todo.id)}>削除</button>
