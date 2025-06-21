@@ -7,13 +7,15 @@ function App() {
     comment: "",
   });
 
+  const [savedData, setSavedData] = useState([]);
+
   const maxLengths = {
     name: 10,
     email: 30,
     comment: 100,
   };
 
-  // 入力変更時の処理
+  // 入力変更
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (value.length <= maxLengths[name]) {
@@ -24,12 +26,18 @@ function App() {
     }
   };
 
-  // 表示用テキスト
+  // 保存ボタン押下時
+  const handleSave = () => {
+    setSavedData((prev) => [...prev, formData]);
+    setFormData({ name: "", email: "", comment: "" }); // 入力欄をリセット
+  };
+
+  // 未入力チェック表示
   const displayText = (text) => (text ? text : "未入力です");
 
   return (
     <div>
-      <h1>フォームアプリ task_2</h1>
+      <h1>フォームアプリ task_3</h1>
 
       <div style={{ marginBottom: "1rem" }}>
         <label>
@@ -41,10 +49,7 @@ function App() {
             onChange={handleChange}
             placeholder="名前を入力してください"
           />
-          <small>
-            {" "}
-            ({formData.name.length}/{maxLengths.name})
-          </small>
+          <small> ({formData.name.length}/{maxLengths.name})</small>
         </label>
       </div>
 
@@ -58,10 +63,7 @@ function App() {
             onChange={handleChange}
             placeholder="メールを入力してください"
           />
-          <small>
-            {" "}
-            ({formData.email.length}/{maxLengths.email})
-          </small>
+          <small> ({formData.email.length}/{maxLengths.email})</small>
         </label>
       </div>
 
@@ -76,12 +78,11 @@ function App() {
             rows={4}
             cols={30}
           />
-          <small>
-            {" "}
-            ({formData.comment.length}/{maxLengths.comment})
-          </small>
+          <small> ({formData.comment.length}/{maxLengths.comment})</small>
         </label>
       </div>
+
+      <button onClick={handleSave}>保存</button>
 
       <hr />
 
@@ -90,6 +91,25 @@ function App() {
         <p>名前: {displayText(formData.name)}</p>
         <p>メール: {displayText(formData.email)}</p>
         <p>コメント: {displayText(formData.comment)}</p>
+      </div>
+
+      <hr />
+
+      <div>
+        <h2>保存した一覧</h2>
+        {savedData.length === 0 ? (
+          <p>保存されたデータはありません。</p>
+        ) : (
+          <ul>
+            {savedData.map((item, index) => (
+              <li key={index}>
+                <strong>名前:</strong> {displayText(item.name)} |{" "}
+                <strong>メール:</strong> {displayText(item.email)} |{" "}
+                <strong>コメント:</strong> {displayText(item.comment)}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );
