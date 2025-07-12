@@ -1,0 +1,14 @@
+
+.oi {
+  margin-top: 5px;
+  display: block;
+  text-align: center;
+}
+
+.oi button {
+ margin: 4px;
+}
+
+.oi button:hover {
+  color: yellow;
+}
