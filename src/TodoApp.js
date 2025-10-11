@@ -53,11 +53,19 @@ const TodoApp = () => {
   };
 
   // 並べ替え
-  const sortedTodos = sortByDate
-    ? [...todos].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)) // 日付で並べ替え
-    : sortCompleted
-    ? [...todos].sort((a, b) => a.completed - b.completed)
-    : todos;
+const sortedTodos = [...todos].sort((a, b) => {
+  if (sortByDate) {
+    // 日付が無い場合は最後に回す
+    const dateA = a.dueDate ? new Date(a.dueDate) : new Date(8640000000000000); // 最大日付
+    const dateB = b.dueDate ? new Date(b.dueDate) : new Date(8640000000000000);
+    return dateA - dateB;
+  } else if (sortCompleted) {
+    return a.completed - b.completed;
+  } else {
+    return 0;
+  }
+});
+
 
   // 日付のフォーマット関数（YYYY-MM-DD）
   const formatDate = (date) => {
