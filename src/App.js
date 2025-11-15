@@ -1,18 +1,19 @@
-import logo from './logo.svg';
-import {
-  Box,
-  Button,
-  Container,
-  Grid,
-  Link,
-  TextField,
-  Typography,
-} from "@mui/material";
+import React from "react";
+import { useForm, Controller } from "react-hook-form";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
 
+function LoginForm() {
+  // useForm 初期化
+  const { handleSubmit, control, formState: { errors } } = useForm();
 
-function App() {
+  // 送信時の処理
+  const onSubmit = (data) => {
+    console.log("送信データ:", data);
+    alert(JSON.stringify(data, null, 2));
+  };
+
   return (
-        <Container maxWidth="xs">
+    <Container maxWidth="xs">
       <Box
         sx={{
           marginTop: 8,
@@ -25,55 +26,62 @@ function App() {
           ログイン
         </Typography>
 
-        <Box component="form" noValidate sx={{ mt:1 }}>
-          <TextField
-            margin="normal"
-            required
-            fullWidth
-            id="email"
-            label="メールアドレス"
+        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
+          {/* Email */}
+          <Controller
             name="email"
-            autoComplete="email"
-            autoFocus
+            control={control}
+            defaultValue=""
+            rules={{
+              required: "メールアドレスは必須です",
+              pattern: {
+                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: "メールアドレスの形式が正しくありません"
+              }
+            }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="メールアドレス"
+                fullWidth
+                margin="normal"
+                error={!!errors.email}
+                helperText={errors.email ? errors.email.message : ""}
+              />
+            )}
           />
 
-          <TextField
-            margin="normal"
-            required
-            fullWidth
+          {/* Password */}
+          <Controller
             name="password"
-            label="パスワード"
-            type="password"
-            id="password"
-            autoComplete="current-password"
+            control={control}
+            defaultValue=""
+            rules={{ required: "パスワードは必須です" }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label="パスワード"
+                type="password"
+                fullWidth
+                margin="normal"
+                error={!!errors.password}
+                helperText={errors.password ? errors.password.message : ""}
+              />
+            )}
           />
 
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt:3, mb:2 }}
+            sx={{ mt: 3, mb: 2 }}
           >
             ログイン
           </Button>
-
-          <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                パスワードを忘れた
-              </Link>
-            </Grid>
-
-            <Grid item>
-              <Link href="#" variant="body2">
-                新規登録
-              </Link>
-            </Grid>
-          </Grid>
         </Box>
       </Box>
     </Container>
   );
-};
+}
 
-export default App;
+export default LoginForm;
