@@ -5,7 +5,7 @@ const queryClient = new QueryClient();
 
 const fetchWeather = async () => {
   const res = await fetch(
-    'https://api.openweathermap.org/data/2.5/weather?q=Tokyo&appid=9791fa1a1d025a2e9db47def29efcc19&units=metric'
+    'https://api.openweathermap.org/data/2.5/weather?q=Tokyo&appid=XXXX&units=metric'
   );
 
   const json = await res.json();
