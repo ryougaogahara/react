@@ -5,7 +5,7 @@ const queryClient = new QueryClient();
 
 const fetchWeather = async () => {
   const res = await fetch(
-    'https://api.openweathermap.org/data/2.5/weather?q=Tokyo&appid=XXXX&units=metric'
+    'https://api.openweathermap.org/data/2.5/weather?q=Tokyo&appid=XXXXX&units=metric&lang=ja'
   );
 
   const json = await res.json();
@@ -24,14 +24,14 @@ function Weather() {
   if (!data || !data.main || !data.weather) return <div>No data</div>;
 
   return (
-    <div>
-      <h2>Tokyo Weather</h2>
-      <p>Temperature: {data.main.temp}°C</p>
-      <p>Weather: {data.weather[0].description}</p>
-    </div>
+    <figure>
+      <img
+        src={`https://openweathermap.org/img/wn/${data?.weather?.[0]?.icon}.png`}
+        alt = {data?.weather?.[0]?.main} />
+        <figcaption>{data?.weather?.[0]?.description}</figcaption>
+    </figure>
   );
 }
-
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
