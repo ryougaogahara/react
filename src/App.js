@@ -1,87 +1,41 @@
-import React from "react";
-import { useForm, Controller } from "react-hook-form";
-import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import React from 'react';
+import { useQuery, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-function LoginForm() {
-  // useForm 初期化
-  const { handleSubmit, control, formState: { errors } } = useForm();
+const queryClient = new QueryClient();
 
-  // 送信時の処理
-  const onSubmit = (data) => {
-    console.log("送信データ:", data);
-    alert(JSON.stringify(data, null, 2));
-  };
+const fetchWeather = async () => {
+  const res = await fetch(
+    'https://api.openweathermap.org/data/2.5/weather?q=Tokyo&appid=9791fa1a1d025a2e9db47def29efcc19&units=metric'
+  );
+
+  const json = await res.json();
+  console.log(json);
+  return json; 
+};
+
+function Weather() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['weather'],
+    queryFn: fetchWeather,
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error!</div>;
+  if (!data || !data.main || !data.weather) return <div>No data</div>;
 
   return (
-    <Container maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography component="h1" variant="h4">
-          ログイン
-        </Typography>
-
-        <Box component="form" onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
-          {/* Email */}
-          <Controller
-            name="email"
-            control={control}
-            defaultValue=""
-            rules={{
-              required: "メールアドレスは必須です",
-              pattern: {
-                value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: "メールアドレスの形式が正しくありません"
-              }
-            }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="メールアドレス"
-                fullWidth
-                margin="normal"
-                error={!!errors.email}
-                helperText={errors.email ? errors.email.message : ""}
-              />
-            )}
-          />
-
-          {/* Password */}
-          <Controller
-            name="password"
-            control={control}
-            defaultValue=""
-            rules={{ required: "パスワードは必須です" }}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                label="パスワード"
-                type="password"
-                fullWidth
-                margin="normal"
-                error={!!errors.password}
-                helperText={errors.password ? errors.password.message : ""}
-              />
-            )}
-          />
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
-            ログイン
-          </Button>
-        </Box>
-      </Box>
-    </Container>
+    <div>
+      <h2>Tokyo Weather</h2>
+      <p>Temperature: {data.main.temp}°C</p>
+      <p>Weather: {data.weather[0].description}</p>
+    </div>
   );
 }
 
-export default LoginForm;
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Weather />
+    </QueryClientProvider>
+  );
+}
